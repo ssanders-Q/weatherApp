@@ -13,7 +13,7 @@ function refreshWeather(response) {
   timeElement.innerHTML = formatDate(date);
   descriptionElement.innerHTML = response.data.condition.description;
   humidityElement.innerHTML = `${response.data.temperature.humidity}%`;
-  windSpeedElement.innerHTML = `${response.data.wind.speed} m/h`;
+  windSpeedElement.innerHTML = `${response.data.wind.speed}km/h`;
   temperatureElement.innerHTML = Math.round(temperature);
   iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon" />`;
 
@@ -33,9 +33,11 @@ function formatDate(date) {
     "Saturday",
   ];
   let day = days[date.getDay()];
+
   if (minutes < 10) {
     minutes = `0${minutes}`;
   }
+
   return `${day} ${hours}:${minutes}`;
 }
 
@@ -53,15 +55,22 @@ function handleSearchSubmit(event) {
   searchCity(searchInput.value);
 }
 
+function formatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[date.getDay()];
+}
+
 function getForecast(city) {
   let apiKey = "07af9baf1bcbta3ao660084372f3bf23";
-  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=imperial`;
+  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=imperial`;
   axios(apiUrl).then(displayForecast);
 }
 
 function displayForecast(response) {
   console.log(response.data);
-  let forecastElement = document.querySelector("#forecast");
+
   let days = ["Tue", "Wed", "Thu", "Fri", "Sat"];
   let forecastHtml = "";
 
@@ -69,22 +78,20 @@ function displayForecast(response) {
     forecastHtml =
       forecastHtml +
       `
-    <div class="row">
-            <div class="col-2">
-              <div class="weather-forecast-date">${day}</div>
-              <img
-                src="http://shecodes-assets.s3.amazonaws.com/api/weather/icons/rain-day.png"
-                alt=""
-                width="42"
-              />
-              <div class="weather-forecast-temperatures">
-                <span class="weather-forecast-temperature-max"> 18°</span>
-                <span class="weather-forecast-temperature-min"> 12°</span>
-              </div>
-            </div>
+      <div class="weather-forecast-day">
+        <div class="weather-forecast-date">${day}</div>
+        <div class="weather-forecast-icon">🌤️</div>
+        <div class="weather-forecast-temperatures">
+          <div class="weather-forecast-temperature">
+            <strong>15º</strong>
           </div>
-        </div>`;
+          <div class="weather-forecast-temperature">9º</div>
+        </div>
+      </div>
+    `;
   });
+
+  let forecastElement = document.querySelector("#forecast");
   forecastElement.innerHTML = forecastHtml;
 }
 
